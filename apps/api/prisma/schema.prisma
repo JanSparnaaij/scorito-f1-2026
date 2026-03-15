@@ -1,0 +1,86 @@
+// Prisma schema for F1 2026 Scorito Helper
+// This schema aligns with the new requirements for Scorito scoring, OpenF1 integration, and selection logic.
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Driver {
+  id            String   @id @default(cuid())
+  driverNumber  Int?
+  code          String?
+  name          String
+  team          String?
+  categoryId    String
+  category      Category @relation(fields: [categoryId], references: [id])
+  price         Int?
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  results       Result[]
+  selectionItems SelectionItem[]
+}
+
+model Category {
+  id    String @id @default(cuid())
+  code  String @unique // "A".."E"
+  label String
+  drivers Driver[]
+}
+
+model Meeting {
+  id         String   @id @default(cuid())
+  year       Int
+  meetingKey Int      @unique
+  country    String?
+  name       String?
+  round      Int?
+  createdAt  DateTime @default(now())
+  sessions   Session[]
+  selections Selection[]
+}
+
+model Session {
+  id          String   @id @default(cuid())
+  meetingId   String
+  meeting     Meeting  @relation(fields: [meetingId], references: [id])
+  sessionKey  Int      @unique
+  sessionName String   // "Qualifying" | "Race"
+  dateUtc     DateTime?
+  results     Result[]
+}
+
+model Result {
+  id          String   @id @default(cuid())
+  sessionId   String
+  session     Session  @relation(fields: [sessionId], references: [id])
+  driverId    String
+  driver      Driver   @relation(fields: [driverId], references: [id])
+  position    Int?     // 1..22; null if DNF
+  status      String?  // "Finished"|"DNF"|...
+  pointsQual  Int      @default(0)
+  pointsRace  Int      @default(0)
+  pointsTotal Int      @default(0)
+}
+
+model Selection {
+  id         String          @id @default(cuid())
+  meetingId  String
+  meeting    Meeting         @relation(fields: [meetingId], references: [id])
+  items      SelectionItem[]
+  createdAt  DateTime        @default(now())
+}
+
+model SelectionItem {
+  id           String   @id @default(cuid())
+  selectionId  String
+  selection    Selection @relation(fields: [selectionId], references: [id])
+  driverId     String
+  driver       Driver    @relation(fields: [driverId], references: [id])
+  slot         Int       // 1..8
+}

@@ -1,23 +1,36 @@
-# Scorito F1 2026
+# F1 2026 Scorito Helper
 
-A helper application for the [Scorito](https://scorito.com) F1 2026 fantasy game. Browse the 2026 driver lineup, check Scorito prices, view race results, and build your optimal team within budget.
+A helper application for the [Scorito](https://scorito.com) F1 2026 fantasy game. Browse the 2026 driver lineup, check Scorito points, view race results, and build your optimal 8-driver team using slot multipliers (P1..P8 ×8..×1).
+
+## Scoring: Scorito vs FIA
+
+- **Scorito**: Custom points per position/category, with multipliers for team selection slots. See `/config/scoring.json` (source of truth) and `/docs/scoring.md` for full details and computation examples.
+- **FIA**: Standard 25–18–15–12–10–8–6–4–2–1 (not used here).
+
+**This app always uses Scorito points.**
 
 ## Features
 
-- 📋 **Driver list** — all 20 F1 2026 drivers with prices, team colours, points
+- 📋 **Driver list** — all 22 F1 2026 drivers with category, team, and computed Scorito points
 - 🏎️ **Race calendar** — full 2026 season schedule with results
-- 🏆 **Team Builder** — select up to 5 drivers within a €100M budget (max 2 per constructor)
-- 🔄 **OpenF1 sync** — pull live driver/race/result data from [openf1.org](https://openf1.org)
-- 📊 **Scorito scoring** — P1=25, P2=18 … + pole (+5), fastest lap (+5), DOTD (+3), DNF (−5)
+- 🏆 **Team Builder** — select 8 drivers with P1..P8 multipliers (×8..×1)
+- 🔄 **OpenF1 sync** — pull official historical results from [openf1.org](https://openf1.org)
+- 📊 **Scorito scoring** — per-category tables, DNF=0, multiplier toggle (race/total)
+- 💡 **Recommendations** — top per category, greedy per slot
+- 📤 **Export** — CSV of current table
 
 ## Tech Stack
 
 | Layer     | Technology                               |
 |-----------|------------------------------------------|
-| Frontend  | Vite + React + TypeScript + Tailwind CSS |
+| Frontend  | Vite + React + TypeScript + Tailwind CSS + shadcn/ui |
 | Backend   | Node.js + Fastify                        |
 | Database  | PostgreSQL + Prisma ORM                  |
 | Monorepo  | pnpm workspaces + Turborepo              |
+
+## See Also
+- `/config/scoring.json` — Scorito tables, multiplier toggle
+- `/docs/scoring.md` — Scoring rules, computation, Scorito vs FIA
 | Deploy    | Frontend → Vercel · Backend → Railway   |
 
 ## Project Structure
