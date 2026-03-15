@@ -1,11 +1,11 @@
-import { FastifyInstance } from 'fastify';
+import { FastifyPluginAsync } from 'fastify';
 import prisma from 'db/client';
 import { calculatePoints } from 'core';
 
 // OpenF1 API base URL
 const OPENF1_BASE = 'https://api.openf1.org/v1';
 
-export default async function routes(fastify: FastifyInstance) {
+const routes: FastifyPluginAsync = async (fastify) => {
   // ── Health ──────────────────────────────────────────────
   fastify.get('/health', async () => ({
     status: 'ok',
@@ -383,4 +383,6 @@ export default async function routes(fastify: FastifyInstance) {
       return { error: 'Failed to sync results', details: String(err) };
     }
   });
-}
+};
+
+export default routes;
