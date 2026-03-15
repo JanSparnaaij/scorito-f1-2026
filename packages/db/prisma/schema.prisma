@@ -1,0 +1,76 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Constructor {
+  id        String   @id @default(cuid())
+  openf1Id  Int?     @unique
+  name      String
+  shortName String?
+  color     String?
+  drivers   Driver[]
+  prices    Price[]
+}
+
+model Driver {
+  id            String       @id @default(cuid())
+  openf1Id      Int?         @unique
+  name          String
+  abbreviation  String?
+  number        Int?
+  teamId        String?
+  team          Constructor? @relation(fields: [teamId], references: [id])
+  nationality   String?
+  headshot      String?
+  raceResults   RaceResult[]
+  prices        Price[]
+}
+
+model Race {
+  id          String       @id @default(cuid())
+  openf1Key   Int?         @unique
+  slug        String       @unique
+  name        String
+  circuit     String?
+  country     String?
+  scheduledAt DateTime
+  status      String       @default("upcoming")
+  raceResults RaceResult[]
+}
+
+model RaceResult {
+  id           String   @id @default(cuid())
+  race         Race     @relation(fields: [raceId], references: [id])
+  raceId       String
+  driver       Driver   @relation(fields: [driverId], references: [id])
+  driverId     String
+  position     Int?
+  dnf          Boolean  @default(false)
+  dnfReason    String?
+  gridPosition Int?
+  points       Float    @default(0)
+  fastestLap   Boolean  @default(false)
+  driverOfDay  Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  @@unique([raceId, driverId])
+}
+
+model Price {
+  id            String       @id @default(cuid())
+  driver        Driver?      @relation(fields: [driverId], references: [id])
+  driverId      String?
+  constructor   Constructor? @relation(fields: [constructorId], references: [id])
+  constructorId String?
+  source        String
+  amountEUR     Float
+  capturedAt    DateTime     @default(now())
+
+  @@index([driverId, source])
+  @@index([constructorId, source])
+}
