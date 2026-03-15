@@ -1,2 +1,103 @@
-# scorito-f1-2026
-A web application for managing and tracking Formula 1 races for the 2026 season. View race schedules, driver information, and team details with real-time data updates.
+# Scorito F1 2026
+
+A helper application for the [Scorito](https://scorito.com) F1 2026 fantasy game. Browse the 2026 driver lineup, check Scorito prices, view race results, and build your optimal team within budget.
+
+## Features
+
+- 📋 **Driver list** — all 20 F1 2026 drivers with prices, team colours, points
+- 🏎️ **Race calendar** — full 2026 season schedule with results
+- 🏆 **Team Builder** — select up to 5 drivers within a €100M budget (max 2 per constructor)
+- 🔄 **OpenF1 sync** — pull live driver/race/result data from [openf1.org](https://openf1.org)
+- 📊 **Scorito scoring** — P1=25, P2=18 … + pole (+5), fastest lap (+5), DOTD (+3), DNF (−5)
+
+## Tech Stack
+
+| Layer     | Technology                               |
+|-----------|------------------------------------------|
+| Frontend  | Vite + React + TypeScript + Tailwind CSS |
+| Backend   | Node.js + Fastify                        |
+| Database  | PostgreSQL + Prisma ORM                  |
+| Monorepo  | pnpm workspaces + Turborepo              |
+| Deploy    | Frontend → Vercel · Backend → Railway   |
+
+## Project Structure
+
+```
+├── apps/
+│   ├── web/          # React frontend (Vite)
+│   └── server/       # Fastify REST API
+├── packages/
+│   ├── core/         # Shared TypeScript types & scoring logic
+│   └── db/           # Prisma schema + client
+├── .env.example
+└── pnpm-workspace.yaml
+```
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js ≥ 18
+- pnpm 8
+- PostgreSQL database (or [Railway](https://railway.app))
+
+### Installation
+
+```bash
+# Install dependencies
+pnpm install
+
+# Copy env files
+cp .env.example .env
+cp apps/web/.env.example apps/web/.env
+
+# Generate Prisma client
+pnpm db:generate
+
+# Run migrations
+pnpm db:migrate
+
+# Seed initial data (drivers + schedule)
+pnpm db:seed
+
+# Start dev servers
+pnpm dev
+```
+
+### API Endpoints
+
+| Method | Path                          | Description                        |
+|--------|-------------------------------|------------------------------------|
+| GET    | `/api/drivers`                | List all drivers with prices       |
+| GET    | `/api/drivers/:id`            | Driver detail + race results       |
+| GET    | `/api/constructors`           | List all constructors              |
+| GET    | `/api/races`                  | List 2026 race calendar            |
+| GET    | `/api/races/:slug`            | Race detail + results              |
+| GET    | `/api/prices`                 | All prices                         |
+| POST   | `/api/drivers/sync`           | Sync drivers from OpenF1           |
+| POST   | `/api/races/sync`             | Sync race schedule from OpenF1     |
+| POST   | `/api/results/sync/:raceSlug` | Sync race results from OpenF1      |
+| POST   | `/api/prices/seed`            | Seed Scorito prices (JSON body)    |
+
+## Scoring Configuration
+
+```typescript
+racePoints:   P1=25, P2=18, P3=15, P4=12, P5=10, P6=8, P7=6, P8=4, P9=2, P10=1
+poleBonus:    +5 pts
+fastestLap:   +5 pts (top 10 finish only)
+driverOfDay:  +3 pts
+dnfPenalty:   −5 pts
+```
+
+## Deployment
+
+### Frontend (Vercel)
+1. Connect the GitHub repo to Vercel
+2. Set **Root Directory** to `apps/web`
+3. Set `VITE_API_URL` environment variable to your Railway backend URL
+
+### Backend (Railway)
+1. Connect the GitHub repo to Railway
+2. Set `DATABASE_URL` to your Railway Postgres URL
+3. Set `FRONTEND_URL` to your Vercel frontend URL
+4. Set `PORT` to `3000` (Railway sets this automatically)
