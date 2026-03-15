@@ -190,7 +190,7 @@ const routes: FastifyPluginAsync = async (fastify) => {
       for (const od of openf1Drivers) {
         // Upsert constructor
         const constructor = await prisma.constructor.upsert({
-          where: { name: od.team_name } as any,
+          where: { name: od.team_name },
           update: { color: od.team_colour ? `#${od.team_colour}` : undefined },
           create: { name: od.team_name, color: od.team_colour ? `#${od.team_colour}` : null },
         });
